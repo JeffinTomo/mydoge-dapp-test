@@ -88,7 +88,7 @@ export default function Home() {
 
         const balanceRes = await myDoge.getBalance();
         console.log('balance result', balanceRes);
-        setBalance(sb.toBitcoin(balanceRes.balance));
+        // setBalance(sb.toBitcoin(balanceRes.balance || 0));
       }
     } catch (e) {
       console.error(e);
@@ -109,6 +109,8 @@ export default function Home() {
       }
     }
   }, [connected, myDoge]);
+
+  checkConnection();
 
   // useInterval(checkConnection, 5000, false);
 
@@ -242,7 +244,7 @@ export default function Home() {
       if (txStatusRes.status === 'confirmed' && txStatusRes.confirmations > 1) {
         const balanceRes = await myDoge.getBalance();
         console.log('balance result', balanceRes);
-        setBalance(sb.toBitcoin(balanceRes.balance));
+        // setBalance(sb.toBitcoin(balanceRes.balance || 0));
         setTxId('');
       }
     }
