@@ -18,18 +18,18 @@ export default function Home() {
   const [txId, setTxId] = useState('');
   const [inscriptionLocation, setinscriptionLocation] = useState('');
   const [recipientAddress, setRecipientAddress] = useState(MDO_ADDRESS);
-  const [drc20Ticker, setDrc20Ticker] = useState('');
+  const [drc20Ticker, setDrc20Ticker] = useState('abcd');
   const [drc20Available, setDrc20Available] = useState('');
   const [drc20Transferable, setDrc20Transferable] = useState('');
   const [drc20Inscriptions, setDrc20Inscriptions] = useState<any[]>([]);
-  const [drc20Amount, setDrc20Amount] = useState('');
-  const [dunesTicker, setDunesTicker] = useState('');
-  const [dunesBalance, setDunesBalance] = useState('');
-  const [dunesAmount, setDunesAmount] = useState('');
+  const [drc20Amount, setDrc20Amount] = useState('0');
+  const [dunesTicker, setDunesTicker] = useState('aabb');
+  const [dunesBalance, setDunesBalance] = useState('0');
+  const [dunesAmount, setDunesAmount] = useState('0');
   const [rawTx, setRawTx] = useState('');
   const [psbtIndexes, setPsbtIndexes] = useState([1, 2]);
-  const [signMessage, setSignMessage] = useState('');
-  const [decryptMessage, setDecryptMessage] = useState('');
+  const [signMessage, setSignMessage] = useState('tomo');
+  const [decryptMessage, setDecryptMessage] = useState('IG1xGVGJ2jv27IYjDKtHR+9pQqx+CBNimUfgwhrIGo03DtgEAPGQrhAfJzVylJU/K6i175TNFD4+ZERslTOk4y8=');
   const [myDoge, setMyDoge] = useState<any>();
   const intervalRef = useRef<any>();
 
@@ -42,7 +42,18 @@ export default function Home() {
         console.log('MyDoge API injected from event');
       };
       window.addEventListener('doge#initialized', onInit, { once: true });
+      // return;
     }
+
+    // (async () => {
+    //   const connectRes = await myDoge.connect();
+    //     console.log('connect result', connectRes);
+    //     if (connectRes.approved) {
+    //       setConnected(true);
+    //       setAddress(connectRes.address);
+    //       setBtnText('Disconnect');
+    //     }
+    // })();
   }, [myDoge]);
 
   // Handle dev edge case where component mounts after MyDoge is initialized
@@ -127,21 +138,6 @@ export default function Home() {
 
     return true;
   }, [connected, myDoge]);
-
-  const onTip = useCallback(async () => {
-    if (!isConnected()) return;
-
-    try {
-      const txReqRes = await myDoge.requestTransaction({
-        recipientAddress: MDO_ADDRESS,
-        dogeAmount: 4.2,
-      });
-      console.log('request transaction result', txReqRes);
-      setTxId(txReqRes.txId);
-    } catch (e) {
-      console.error(e);
-    }
-  }, [isConnected, myDoge]);
 
   const onSendInscription = useCallback(async () => {
     if (!isConnected()) return;
@@ -299,7 +295,7 @@ export default function Home() {
   useInterval(txStatus, 10000, false);
 
   const onRequestTransaction = useCallback(async () => {
-    if (!isConnected()) return;
+    // if (!isConnected()) return;
 
     try {
       const res = await myDoge.requestTransaction({
@@ -317,10 +313,9 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>MyDoge</title>
+        <title>MyDoge Test</title>
         <meta name='description' content='Sample integration' />
         <meta name='viewport' content='width=device-width, initial-scale=1' />
-        <link rel='icon' href='/favicon.ico' />
       </Head>
       <main className={styles.main}>
         <div className={styles.item}>
@@ -330,7 +325,7 @@ export default function Home() {
               target='_blank'
               rel='noopener noreferrer'
             >
-              Checkout MyDoge Wallet Browser Extension on GitHub
+              Checkout MyDoge Wallet Browser
               <Image
                 src='/github.svg'
                 alt='GitHub Logo'
@@ -349,38 +344,43 @@ export default function Home() {
           <div className={styles.container}>
             <div className={styles.item}>Address: {address}</div>
             <div className={styles.item}>Balance: {balance}</div>
-            <div className={styles.center}>
-              <button onClick={onTip}>Tip MyDoge Team 4.20</button>
-            </div>
+
+
             --------------------------------------------------------------------
+            <h2>Send Inscription</h2>
             <div className={styles.center}>
-              Inscription location (Doginal/DRC-20) (txid:vout:offset)
+              Inscription location
+              <input
+                placeholder='inscriptionLocation: (Doginal/DRC-20) (txid:vout:offset)'
+                type='text'
+                style={{ width: '385px' }}
+                value={inscriptionLocation}
+                onChange={(text) => {
+                  setinscriptionLocation(text.target.value);
+                }}
+              />
             </div>
+
+            <div className={styles.center}>recipient address
             <input
               type='text'
-              style={{ width: '485px' }}
-              value={inscriptionLocation}
-              onChange={(text) => {
-                setinscriptionLocation(text.target.value);
-              }}
-            />
-            <div className={styles.center}>Inscription recipient address</div>
-            <input
-              type='text'
-              style={{ width: '265px' }}
+              style={{ width: '365px' }}
               value={recipientAddress}
               onChange={(text) => {
                 setRecipientAddress(text.target.value);
               }}
             />
+            </div>
             <div className={styles.center}>
               <button onClick={onSendInscription}>Send Inscription</button>
             </div>
+
+
             --------------------------------------------------------------------
             <div className={styles.center}>DRC-20 Ticker</div>
             <input
               type='text'
-              style={{ width: '35px' }}
+              style={{ width: '135px' }}
               value={drc20Ticker}
               onChange={(text) => {
                 setDrc20Ticker(text.target.value);
@@ -400,7 +400,7 @@ export default function Home() {
               </div>
             )}
             {drc20Available || drc20Transferable ? (
-              <input
+              <>drc20 amount: <input
                 type='text'
                 className={styles.item}
                 style={{ width: '100px' }}
@@ -408,16 +408,18 @@ export default function Home() {
                 onChange={(text) => {
                   setDrc20Amount(text.target.value);
                 }}
-              />
+              /></>
             ) : null}
-            {drc20Available && drc20Available !== '0' && (
+
+            {drc20Available && (
               <div className={styles.center}>
                 <button onClick={() => onAvailableDRC20()}>
                   Make Transferable
                 </button>
               </div>
             )}
-            {drc20Transferable && drc20Transferable !== '0' && (
+
+            {drc20Transferable && (
               <div className={styles.center}>
                 <button onClick={() => onGetDRC20Inscriptions()}>
                   Get Transferable DRC-20
@@ -431,8 +433,11 @@ export default function Home() {
                   {inscription.amount}
                 </div>
               ))}
+
+
+
             --------------------------------------------------------------------
-            <div className={styles.center}>Dunes Ticker</div>
+            <h2>Dunes Ticker</h2>
             <input
               type='text'
               style={{ width: '130px' }}
@@ -444,10 +449,11 @@ export default function Home() {
             <div className={styles.center}>
               <button onClick={onGetDunesBalance}>Get Dunes Balance</button>
             </div>
+
             {dunesBalance && (
               <div className={styles.container}>
                 <div className={styles.item}>Dunes Balance: {dunesBalance}</div>
-                <div className={styles.item}>Dunes Recipient Address</div>
+                <div className={styles.item}>Dunes Recipient Address
                 <input
                   className={styles.item}
                   type='text'
@@ -457,7 +463,8 @@ export default function Home() {
                     setRecipientAddress(text.target.value);
                   }}
                 />
-                <div className={styles.item}>Dunes Amount</div>
+                </div>
+                <div className={styles.item}>Dunes Amount
                 <input
                   type='text'
                   className={styles.item}
@@ -467,14 +474,16 @@ export default function Home() {
                     setDunesAmount(text.target.value);
                   }}
                 />
+                </div>
                 <button className={styles.item} onClick={onSendDunes}>
                   Send Dunes
                 </button>
               </div>
             )}
+
             --------------------------------------------------------------------
-            <div className={styles.item}>Send PSBT</div>
-            <div className={styles.item}>Raw TX</div>
+            <h2 className={styles.item}>Send PSBT</h2>
+            <div className={styles.item}>Raw TX
             <input
               type='text'
               className={styles.item}
@@ -484,7 +493,8 @@ export default function Home() {
                 setRawTx(text.target.value);
               }}
             />
-            <div className={styles.item}>Input Indexes (csv)</div>
+            </div>
+            <div className={styles.item}>Input Indexes (csv)
             <input
               type='text'
               className={styles.item}
@@ -497,12 +507,15 @@ export default function Home() {
                 }
               }}
             />
+            </div>
             <div className={styles.center}>
               <button onClick={() => onSendPSBT()}>Send PSBT</button>
             </div>
+
+
             --------------------------------------------------------------------
-            <div className={styles.item}>Sign Message</div>
-            <input
+            <h2 className={styles.item}>Sign Message</h2>
+            Message: <input
               type='text'
               className={styles.item}
               style={{ width: '500px' }}
@@ -514,9 +527,11 @@ export default function Home() {
             <div className={styles.center}>
               <button onClick={() => onSignMessage()}>Sign Message</button>
             </div>
+
+
             --------------------------------------------------------------------
-            <div className={styles.item}>Decrypt Message</div>
-            <input
+            <h2 className={styles.item}>Decrypt Message</h2>
+            decryptMessage <input
               type='text'
               className={styles.item}
               style={{ width: '500px' }}
