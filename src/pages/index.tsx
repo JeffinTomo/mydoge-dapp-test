@@ -1,47 +1,50 @@
-import Head from 'next/head';
-import Image from 'next/image';
-import sb from 'satoshi-bitcoin';
-import { Inter } from 'next/font/google';
-import styles from '@/styles/Home.module.css';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import Head from "next/head";
+import Image from "next/image";
+import sb from "satoshi-bitcoin";
+import { Inter } from "next/font/google";
+import styles from "@/styles/Home.module.css";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { useInterval } from '../hooks/useInterval';
+import { useInterval } from "../hooks/useInterval";
 
-const inter = Inter({ subsets: ['latin'] });
-const MDO_ADDRESS = 'DAHkCF5LajV6jYyi5o4eMvtpqXRcm9eZYq';
+const inter = Inter({ subsets: ["latin"] });
+const MDO_ADDRESS = "DAHkCF5LajV6jYyi5o4eMvtpqXRcm9eZYq";
 
 export default function Home() {
-  const [btnText, setBtnText] = useState('Connect');
+  const [btnText, setBtnText] = useState("Connect");
   const [connected, setConnected] = useState(false);
   const [address, setAddress] = useState(false);
   const [balance, setBalance] = useState(0);
-  const [txId, setTxId] = useState('');
-  const [inscriptionLocation, setinscriptionLocation] = useState('');
+  const [txId, setTxId] = useState("");
+  const [inscriptionLocation, setinscriptionLocation] = useState("");
   const [recipientAddress, setRecipientAddress] = useState(MDO_ADDRESS);
-  const [drc20Ticker, setDrc20Ticker] = useState('abcd');
-  const [drc20Available, setDrc20Available] = useState('');
-  const [drc20Transferable, setDrc20Transferable] = useState('');
+  const [drc20Ticker, setDrc20Ticker] = useState("unln");
+  const [drc20Available, setDrc20Available] = useState("");
+  const [drc20Transferable, setDrc20Transferable] = useState("");
   const [drc20Inscriptions, setDrc20Inscriptions] = useState<any[]>([]);
-  const [drc20Amount, setDrc20Amount] = useState('0');
-  const [dunesTicker, setDunesTicker] = useState('aabb');
-  const [dunesBalance, setDunesBalance] = useState('0');
-  const [dunesAmount, setDunesAmount] = useState('0');
-  const [rawTx, setRawTx] = useState('');
+  const [drc20Amount, setDrc20Amount] = useState("0");
+  const [dunesTicker, setDunesTicker] = useState("aabb");
+  const [dunesBalance, setDunesBalance] = useState("0");
+  const [dunesAmount, setDunesAmount] = useState("0");
+  const [rawTx, setRawTx] = useState("");
   const [psbtIndexes, setPsbtIndexes] = useState([1, 2]);
-  const [signMessage, setSignMessage] = useState('tomo');
-  const [decryptMessage, setDecryptMessage] = useState('IG1xGVGJ2jv27IYjDKtHR+9pQqx+CBNimUfgwhrIGo03DtgEAPGQrhAfJzVylJU/K6i175TNFD4+ZERslTOk4y8=');
+  const [signMessage, setSignMessage] = useState("tomo");
+  const [decryptMessage, setDecryptMessage] = useState(
+    "IG1xGVGJ2jv27IYjDKtHR+9pQqx+CBNimUfgwhrIGo03DtgEAPGQrhAfJzVylJU/K6i175TNFD4+ZERslTOk4y8=",
+  );
   const [myDoge, setMyDoge] = useState<any>();
   const intervalRef = useRef<any>();
 
   useEffect(() => {
     if (!myDoge) {
       const onInit = () => {
-        const { doge } = window as any;
+        // const { doge } = window as any;
+        const { doge } = window?.mydoge as any;
         setMyDoge(doge);
-        window.removeEventListener('doge#initialized', onInit);
-        console.log('MyDoge API injected from event');
+        window.removeEventListener("doge#initialized", onInit);
+        console.log("MyDoge API injected from event");
       };
-      window.addEventListener('doge#initialized', onInit, { once: true });
+      window.addEventListener("doge#initialized", onInit, { once: true });
       // return;
     }
 
@@ -60,13 +63,14 @@ export default function Home() {
   useEffect(() => {
     if (!myDoge && !intervalRef.current) {
       intervalRef.current = setInterval(() => {
-        const { doge } = window as any;
+        // const { doge } = window as any;
+        const { doge } = window?.mydoge as any;
         if (doge?.isMyDoge) {
           setMyDoge(doge);
           clearInterval(intervalRef.current);
-          console.log('MyDoge API injected from interval');
+          console.log("MyDoge API injected from interval");
         } else {
-          console.log('MyDoge API not injected');
+          console.log("MyDoge API not injected");
         }
       }, 1000);
     }
@@ -81,25 +85,21 @@ export default function Home() {
     try {
       if (connected) {
         const disconnectRes = await myDoge.disconnect();
-        console.log('disconnect result', disconnectRes);
+        console.log("disconnect result", disconnectRes);
         if (disconnectRes.disconnected) {
           setConnected(false);
           setAddress(false);
-          setBtnText('Connect');
+          setBtnText("Connect");
         }
         return;
       }
 
       const connectRes = await myDoge.connect();
-      console.log('connect result', connectRes);
+      console.log("connect result", connectRes);
       if (connectRes.approved) {
         setConnected(true);
         setAddress(connectRes.address);
-        setBtnText('Disconnect');
-
-        const balanceRes = await myDoge.getBalance();
-        console.log('balance result', balanceRes);
-        // setBalance(sb.toBitcoin(balanceRes.balance || 0));
+        setBtnText("Disconnect");
       }
     } catch (e) {
       console.error(e);
@@ -111,13 +111,17 @@ export default function Home() {
       const connectionStatusRes = await myDoge
         .getConnectionStatus()
         .catch(console.error);
-      console.log('connection status result', connectionStatusRes);
+      console.log("getConnectionStatus result", connectionStatusRes);
 
       if (!connectionStatusRes?.connected) {
         setConnected(false);
         setAddress(false);
-        setBtnText('Connect');
+        setBtnText("Connect");
       }
+
+      const balanceRes = await myDoge.getBalance();
+      console.log("balance result", balanceRes);
+      setBalance(balanceRes.balance);
     }
   }, [connected, myDoge]);
 
@@ -147,7 +151,7 @@ export default function Home() {
         recipientAddress,
         location: inscriptionLocation,
       });
-      console.log('request inscription transaction result', txReqRes);
+      console.log("request inscription transaction result", txReqRes);
       setTxId(txReqRes.txId);
     } catch (e) {
       console.error(e);
@@ -161,7 +165,8 @@ export default function Home() {
       const balanceRes = await myDoge.getDRC20Balance({
         ticker: drc20Ticker,
       });
-      console.log('request drc-20 balance result', balanceRes);
+      //{availableBalance: '0', transferableBalance: '0', ticker: 'tomo', address: 'DTjdm88aasjstNCfGr1H6jWkbEJN5Y34Ss'}
+      console.log("getDRC20Balance result", balanceRes);
       setDrc20Inscriptions([]);
       setDrc20Available(balanceRes.availableBalance);
       setDrc20Transferable(balanceRes.transferableBalance);
@@ -177,7 +182,7 @@ export default function Home() {
       const transferableRes = await myDoge.getTransferableDRC20({
         ticker: drc20Ticker,
       });
-      console.log('request drc-20 transferable result', transferableRes);
+      console.log("getTransferableDRC20 result", transferableRes);
       setDrc20Inscriptions(transferableRes.inscriptions);
     } catch (e) {
       console.error(e);
@@ -192,7 +197,7 @@ export default function Home() {
         ticker: drc20Ticker,
         amount: drc20Amount,
       });
-      console.log('request available drc-20 tx result', txReqRes);
+      console.log("request available drc-20 tx result", txReqRes);
       setTxId(txReqRes.txId);
     } catch (e) {
       console.error(e);
@@ -206,7 +211,7 @@ export default function Home() {
       const balanceRes = await myDoge.getDunesBalance({
         ticker: dunesTicker,
       });
-      console.log('request dunes balance result', balanceRes);
+      console.log("getDunesBalance result", balanceRes);
 
       setDunesBalance(balanceRes.balance);
     } catch (e) {
@@ -223,7 +228,7 @@ export default function Home() {
         recipientAddress,
         amount: dunesAmount,
       });
-      console.log('request dunes transaction result', txReqRes);
+      console.log("request dunes transaction result", txReqRes);
       setTxId(txReqRes.txId);
     } catch (e) {
       console.error(e);
@@ -235,13 +240,13 @@ export default function Home() {
       const txStatusRes = await myDoge.getTransactionStatus({
         txId,
       });
-      console.log('transaction status result', txStatusRes);
+      console.log("transaction status result", txStatusRes);
       // Once confirmed, stop polling and update balance
-      if (txStatusRes.status === 'confirmed' && txStatusRes.confirmations > 1) {
+      if (txStatusRes.status === "confirmed" && txStatusRes.confirmations > 1) {
         const balanceRes = await myDoge.getBalance();
-        console.log('balance result', balanceRes);
+        console.log("balance result", balanceRes);
         // setBalance(sb.toBitcoin(balanceRes.balance || 0));
-        setTxId('');
+        setTxId("");
       }
     }
   }, [myDoge, txId]);
@@ -256,7 +261,7 @@ export default function Home() {
         indexes: psbtIndexes,
         signOnly, // Optionally return the signed transaction instead of broadcasting
       });
-      console.log('request send psbt result', txReqRes);
+      console.log("request send psbt result", txReqRes);
 
       if (!signOnly) {
         setTxId(txReqRes.txId);
@@ -273,7 +278,7 @@ export default function Home() {
       const signMsgRes = await myDoge.requestSignedMessage({
         message: signMessage,
       });
-      console.log('request sign message result', signMsgRes);
+      console.log("request sign message result", signMsgRes);
     } catch (e) {
       console.error(e);
     }
@@ -286,7 +291,7 @@ export default function Home() {
       const decryptMsgRes = await myDoge.requestDecryptedMessage({
         message: decryptMessage,
       });
-      console.log('request decrypt message result', decryptMsgRes);
+      console.log("request decrypt message result", decryptMsgRes);
     } catch (e) {
       console.error(e);
     }
@@ -299,10 +304,10 @@ export default function Home() {
 
     try {
       const res = await myDoge.requestTransaction({
-        recipientAddress: 'DLsbf5qa5XKXGsMamvLUWeimmMKBnFMV7h',
+        recipientAddress: "DLsbf5qa5XKXGsMamvLUWeimmMKBnFMV7h",
         dogeAmount: 0.1,
       });
-      console.log('requestTransaction result', res);
+      console.log("requestTransaction result", res);
 
       setTxId(res.txid);
     } catch (e) {
@@ -314,21 +319,21 @@ export default function Home() {
     <>
       <Head>
         <title>MyDoge Test</title>
-        <meta name='description' content='Sample integration' />
-        <meta name='viewport' content='width=device-width, initial-scale=1' />
+        <meta name="description" content="Sample integration" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <main className={styles.main}>
         <div className={styles.item}>
           <div>
             <a
-              href='https://github.com/mydoge-com/mydogemask'
-              target='_blank'
-              rel='noopener noreferrer'
+              href="https://github.com/mydoge-com/mydogemask"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               Checkout MyDoge Wallet Browser
               <Image
-                src='/github.svg'
-                alt='GitHub Logo'
+                src="/github.svg"
+                alt="GitHub Logo"
                 width={25}
                 height={25}
                 priority
@@ -344,43 +349,39 @@ export default function Home() {
           <div className={styles.container}>
             <div className={styles.item}>Address: {address}</div>
             <div className={styles.item}>Balance: {balance}</div>
-
-
             --------------------------------------------------------------------
             <h2>Send Inscription</h2>
             <div className={styles.center}>
               Inscription location
               <input
-                placeholder='inscriptionLocation: (Doginal/DRC-20) (txid:vout:offset)'
-                type='text'
-                style={{ width: '385px' }}
+                placeholder="inscriptionLocation: (Doginal/DRC-20) (txid:vout:offset)"
+                type="text"
+                style={{ width: "385px" }}
                 value={inscriptionLocation}
                 onChange={(text) => {
                   setinscriptionLocation(text.target.value);
                 }}
               />
             </div>
-
-            <div className={styles.center}>recipient address
-            <input
-              type='text'
-              style={{ width: '365px' }}
-              value={recipientAddress}
-              onChange={(text) => {
-                setRecipientAddress(text.target.value);
-              }}
-            />
+            <div className={styles.center}>
+              recipient address
+              <input
+                type="text"
+                style={{ width: "365px" }}
+                value={recipientAddress}
+                onChange={(text) => {
+                  setRecipientAddress(text.target.value);
+                }}
+              />
             </div>
             <div className={styles.center}>
               <button onClick={onSendInscription}>Send Inscription</button>
             </div>
-
-
             --------------------------------------------------------------------
             <div className={styles.center}>DRC-20 Ticker</div>
             <input
-              type='text'
-              style={{ width: '135px' }}
+              type="text"
+              style={{ width: "135px" }}
               value={drc20Ticker}
               onChange={(text) => {
                 setDrc20Ticker(text.target.value);
@@ -400,17 +401,19 @@ export default function Home() {
               </div>
             )}
             {drc20Available || drc20Transferable ? (
-              <>drc20 amount: <input
-                type='text'
-                className={styles.item}
-                style={{ width: '100px' }}
-                value={drc20Amount}
-                onChange={(text) => {
-                  setDrc20Amount(text.target.value);
-                }}
-              /></>
+              <>
+                drc20 amount:{" "}
+                <input
+                  type="text"
+                  className={styles.item}
+                  style={{ width: "100px" }}
+                  value={drc20Amount}
+                  onChange={(text) => {
+                    setDrc20Amount(text.target.value);
+                  }}
+                />
+              </>
             ) : null}
-
             {drc20Available && (
               <div className={styles.center}>
                 <button onClick={() => onAvailableDRC20()}>
@@ -418,8 +421,7 @@ export default function Home() {
                 </button>
               </div>
             )}
-
-            {drc20Transferable && (
+            {true && (
               <div className={styles.center}>
                 <button onClick={() => onGetDRC20Inscriptions()}>
                   Get Transferable DRC-20
@@ -429,18 +431,15 @@ export default function Home() {
             {drc20Inscriptions.length > 0 &&
               (drc20Inscriptions as any[]).map((inscription) => (
                 <div key={inscription.location}>
-                  {inscription.location} {inscription.ticker}{' '}
+                  {inscription.location} {inscription.ticker}{" "}
                   {inscription.amount}
                 </div>
               ))}
-
-
-
             --------------------------------------------------------------------
             <h2>Dunes Ticker</h2>
             <input
-              type='text'
-              style={{ width: '130px' }}
+              type="text"
+              style={{ width: "130px" }}
               value={dunesTicker}
               onChange={(text) => {
                 setDunesTicker(text.target.value);
@@ -449,92 +448,94 @@ export default function Home() {
             <div className={styles.center}>
               <button onClick={onGetDunesBalance}>Get Dunes Balance</button>
             </div>
-
             {dunesBalance && (
               <div className={styles.container}>
                 <div className={styles.item}>Dunes Balance: {dunesBalance}</div>
-                <div className={styles.item}>Dunes Recipient Address
-                <input
-                  className={styles.item}
-                  type='text'
-                  style={{ width: '265px' }}
-                  value={recipientAddress}
-                  onChange={(text) => {
-                    setRecipientAddress(text.target.value);
-                  }}
-                />
+                <div className={styles.item}>
+                  Dunes Recipient Address
+                  <input
+                    className={styles.item}
+                    type="text"
+                    style={{ width: "265px" }}
+                    value={recipientAddress}
+                    onChange={(text) => {
+                      setRecipientAddress(text.target.value);
+                    }}
+                  />
                 </div>
-                <div className={styles.item}>Dunes Amount
-                <input
-                  type='text'
-                  className={styles.item}
-                  style={{ width: '100px' }}
-                  value={dunesAmount}
-                  onChange={(text) => {
-                    setDunesAmount(text.target.value);
-                  }}
-                />
+                <div className={styles.item}>
+                  Dunes Amount
+                  <input
+                    type="text"
+                    className={styles.item}
+                    style={{ width: "100px" }}
+                    value={dunesAmount}
+                    onChange={(text) => {
+                      setDunesAmount(text.target.value);
+                    }}
+                  />
                 </div>
                 <button className={styles.item} onClick={onSendDunes}>
                   Send Dunes
                 </button>
               </div>
             )}
-
             --------------------------------------------------------------------
             <h2 className={styles.item}>Send PSBT</h2>
-            <div className={styles.item}>Raw TX
-            <input
-              type='text'
-              className={styles.item}
-              style={{ width: '500px' }}
-              value={rawTx}
-              onChange={(text) => {
-                setRawTx(text.target.value);
-              }}
-            />
+            <div className={styles.item}>
+              Raw TX
+              <input
+                type="text"
+                className={styles.item}
+                style={{ width: "500px" }}
+                value={rawTx}
+                onChange={(text) => {
+                  setRawTx(text.target.value);
+                }}
+              />
             </div>
-            <div className={styles.item}>Input Indexes (csv)
-            <input
-              type='text'
-              className={styles.item}
-              style={{ width: '150px' }}
-              value={psbtIndexes.join(',')}
-              onChange={(text) => {
-                if (text?.target?.value) {
-                  const indexes = text.target.value.split(',').map(Number);
-                  setPsbtIndexes(indexes);
-                }
-              }}
-            />
+            <div className={styles.item}>
+              Input Indexes (csv)
+              <input
+                type="text"
+                className={styles.item}
+                style={{ width: "150px" }}
+                value={psbtIndexes.join(",")}
+                onChange={(text) => {
+                  if (text?.target?.value) {
+                    const indexes = text.target.value.split(",").map(Number);
+                    setPsbtIndexes(indexes);
+                  }
+                }}
+              />
             </div>
             <div className={styles.center}>
               <button onClick={() => onSendPSBT()}>Send PSBT</button>
             </div>
-
-
             --------------------------------------------------------------------
             <h2 className={styles.item}>Sign Message</h2>
-            Message: <input
-              type='text'
+            Message:{" "}
+            <input
+              type="text"
               className={styles.item}
-              style={{ width: '500px' }}
+              style={{ width: "500px" }}
               value={signMessage}
               onChange={(text) => {
                 setSignMessage(text.target.value);
               }}
             />
             <div className={styles.center}>
-              <button onClick={() => onSignMessage()}>Sign Message</button>
+              <button onClick={() => onSignMessage()}>
+                requestSignedMessage
+              </button>
             </div>
-
-
             --------------------------------------------------------------------
             <h2 className={styles.item}>Decrypt Message</h2>
-            decryptMessage <input
-              type='text'
+            decryptMessage{" "}
+            <input
+              type="text"
               className={styles.item}
-              style={{ width: '500px' }}
+              style={{ width: "500px" }}
               value={decryptMessage}
               onChange={(text) => {
                 setDecryptMessage(text.target.value);
@@ -542,11 +543,9 @@ export default function Home() {
             />
             <div className={styles.center}>
               <button onClick={() => onDecryptMessage()}>
-                Decrypt Message
+                requestDecryptedMessage
               </button>
             </div>
-
-
             <div className={styles.center}>
               <button onClick={() => onRequestTransaction()}>
                 request Transaction
