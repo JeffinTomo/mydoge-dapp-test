@@ -38,8 +38,10 @@ export default function Home() {
   useEffect(() => {
     if (!myDoge) {
       const onInit = () => {
-        // const { doge } = window as any;
-        const { doge } = window?.mydoge as any;
+        let { doge } = window as any;
+        if (!doge && window?.mydoge) {
+          doge = window?.mydoge as any;
+        }
         setMyDoge(doge);
         window.removeEventListener("doge#initialized", onInit);
         console.log("MyDoge API injected from event");
@@ -63,8 +65,10 @@ export default function Home() {
   useEffect(() => {
     if (!myDoge && !intervalRef.current) {
       intervalRef.current = setInterval(() => {
-        // const { doge } = window as any;
-        const { doge } = window?.mydoge as any;
+        let { doge } = window as any;
+        if (!doge && window?.mydoge) {
+          doge = window?.mydoge as any;
+        }
         if (doge?.isMyDoge) {
           setMyDoge(doge);
           clearInterval(intervalRef.current);
@@ -375,7 +379,9 @@ export default function Home() {
               />
             </div>
             <div className={styles.center}>
-              <button onClick={onSendInscription}>Send Inscription</button>
+              <button onClick={onSendInscription}>
+                requestInscriptionTransaction
+              </button>
             </div>
             --------------------------------------------------------------------
             <div className={styles.center}>DRC-20 Ticker</div>
@@ -388,7 +394,7 @@ export default function Home() {
               }}
             />
             <div className={styles.center}>
-              <button onClick={onGetDRC20Balance}>Get DRC-20 Balance</button>
+              <button onClick={onGetDRC20Balance}>getDRC20Balance</button>
             </div>
             {drc20Available && (
               <div className={styles.item}>
@@ -424,7 +430,7 @@ export default function Home() {
             {true && (
               <div className={styles.center}>
                 <button onClick={() => onGetDRC20Inscriptions()}>
-                  Get Transferable DRC-20
+                  getDRC20Inscriptions
                 </button>
               </div>
             )}
