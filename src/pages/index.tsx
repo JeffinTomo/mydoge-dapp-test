@@ -124,7 +124,7 @@ export default function Home() {
       }
 
       const balanceRes = await myDoge.getBalance();
-      console.log("balance result", balanceRes);
+      console.log("getBalance result", balanceRes);
       setBalance(balanceRes.balance);
     }
   }, [connected, myDoge]);
@@ -155,7 +155,7 @@ export default function Home() {
         recipientAddress,
         location: inscriptionLocation,
       });
-      console.log("request inscription transaction result", txReqRes);
+      console.log("requestInscriptionTransaction result", txReqRes);
       setTxId(txReqRes.txId);
     } catch (e) {
       console.error(e);
@@ -201,7 +201,7 @@ export default function Home() {
         ticker: drc20Ticker,
         amount: drc20Amount,
       });
-      console.log("request available drc-20 tx result", txReqRes);
+      console.log("requestAvailableDRC20Transaction result", txReqRes);
       setTxId(txReqRes.txId);
     } catch (e) {
       console.error(e);
@@ -232,7 +232,7 @@ export default function Home() {
         recipientAddress,
         amount: dunesAmount,
       });
-      console.log("request dunes transaction result", txReqRes);
+      console.log("requestDunesTransaction result", txReqRes);
       setTxId(txReqRes.txId);
     } catch (e) {
       console.error(e);
@@ -244,11 +244,11 @@ export default function Home() {
       const txStatusRes = await myDoge.getTransactionStatus({
         txId,
       });
-      console.log("transaction status result", txStatusRes);
+      console.log("getTransactionStatus result", txStatusRes);
       // Once confirmed, stop polling and update balance
       if (txStatusRes.status === "confirmed" && txStatusRes.confirmations > 1) {
         const balanceRes = await myDoge.getBalance();
-        console.log("balance result", balanceRes);
+        console.log("getBalance result", balanceRes);
         // setBalance(sb.toBitcoin(balanceRes.balance || 0));
         setTxId("");
       }
@@ -265,7 +265,7 @@ export default function Home() {
         indexes: psbtIndexes,
         signOnly, // Optionally return the signed transaction instead of broadcasting
       });
-      console.log("request send psbt result", txReqRes);
+      console.log("requestPsbt result", txReqRes);
 
       if (!signOnly) {
         setTxId(txReqRes.txId);
@@ -282,7 +282,7 @@ export default function Home() {
       const signMsgRes = await myDoge.requestSignedMessage({
         message: signMessage,
       });
-      console.log("request sign message result", signMsgRes);
+      console.log("requestSignedMessage result", signMsgRes);
     } catch (e) {
       console.error(e);
     }
@@ -295,7 +295,7 @@ export default function Home() {
       const decryptMsgRes = await myDoge.requestDecryptedMessage({
         message: decryptMessage,
       });
-      console.log("request decrypt message result", decryptMsgRes);
+      console.log("requestDecryptedMessage result", decryptMsgRes);
     } catch (e) {
       console.error(e);
     }
@@ -420,17 +420,17 @@ export default function Home() {
                 />
               </>
             ) : null}
-            {drc20Available && (
+            {true && (
               <div className={styles.center}>
                 <button onClick={() => onAvailableDRC20()}>
-                  Make Transferable
+                  requestAvailableDRC20Transaction
                 </button>
               </div>
             )}
             {true && (
               <div className={styles.center}>
                 <button onClick={() => onGetDRC20Inscriptions()}>
-                  getDRC20Inscriptions
+                  getTransferableDRC20
                 </button>
               </div>
             )}
@@ -452,9 +452,9 @@ export default function Home() {
               }}
             />
             <div className={styles.center}>
-              <button onClick={onGetDunesBalance}>Get Dunes Balance</button>
+              <button onClick={onGetDunesBalance}>getDunesBalance</button>
             </div>
-            {dunesBalance && (
+            {true && (
               <div className={styles.container}>
                 <div className={styles.item}>Dunes Balance: {dunesBalance}</div>
                 <div className={styles.item}>
@@ -482,7 +482,7 @@ export default function Home() {
                   />
                 </div>
                 <button className={styles.item} onClick={onSendDunes}>
-                  Send Dunes
+                  requestDunesTransaction
                 </button>
               </div>
             )}
@@ -516,7 +516,7 @@ export default function Home() {
               />
             </div>
             <div className={styles.center}>
-              <button onClick={() => onSendPSBT()}>Send PSBT</button>
+              <button onClick={() => onSendPSBT()}>requestPsbt</button>
             </div>
             --------------------------------------------------------------------
             <h2 className={styles.item}>Sign Message</h2>

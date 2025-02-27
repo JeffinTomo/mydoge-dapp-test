@@ -12,7 +12,7 @@
 
 3. Open [http://localhost:3000](http://localhost:3000) with your browser to run the demo.
 
-4. https://mydoge-dapp-test.vercel.app/ (git commit push, auto build)
+4. https://demo-mydoge-api.vercel.app// (git commit push, auto build)
 
 ## JavaScript API
 
